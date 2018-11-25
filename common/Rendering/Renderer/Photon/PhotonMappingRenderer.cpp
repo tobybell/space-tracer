@@ -70,10 +70,47 @@ void PhotonMappingRenderer::TracePhoton(PhotonKdtree& photonMap, Ray* photonRay,
      *        ... set photon properties ...
      *        photonMap.insert(myPhoton);
      */
+    if (remainingBounces < 0) return;
 
     assert(photonRay);
     IntersectionState state(0, 0);
     state.currentIOR = currentIOR;
+    if (!storedScene->Trace(photonRay, &state)) return;
+
+    if (path.size() != 1) {
+        Photon photon;
+        photon.position = state.intersectionRay.GetRayPosition(state.intersectionT);
+        photon.intensity = lightIntensity;
+        photon.toLightRay = Ray(photon.position, -state.intersectionRay.GetRayDirection());
+        photonMap.insert(photon);
+    }
+
+    const MeshObject *hitMeshObject = state.intersectedPrimitive->GetParentMeshObject();
+    const Material *hitMaterial = hitMeshObject->GetMaterial();
+    const glm::vec3 diffuse = hitMaterial->GetBaseDiffuseReflection();
+    const float Pr = glm::max(glm::max(diffuse.r, diffuse.g), diffuse.b);
+
+    if ((double) rand() / RAND_MAX >= Pr) return;
+
+    const float u1 = (double) rand() / RAND_MAX;
+    const float u2 = (double) rand() / RAND_MAX;
+    const float r = glm::sqrt(u1);
+    const float Th = 2 * PI * u2;
+    const float x = r * glm::cos(Th);
+    const float y = r * glm::sin(Th);
+    const float z = glm::sqrt(1 - u1);
+
+    const glm::vec3 n = state.ComputeNormal();
+    const glm::vec3 t = glm::abs(glm::dot(n, glm::vec3(1, 0, 0))) < 0.8 ?
+        glm::cross(n, glm::vec3(1, 0, 0)) : glm::cross(n, glm::vec3(0, 1, 0));
+    const glm::vec3 b = glm::cross(n, t);
+    const glm::mat3 transform = glm::mat3(t, b, n);
+
+    path.push_back('b');
+    photonRay->SetRayPosition(state.intersectionRay.GetRayPosition(state.intersectionT));
+    photonRay->SetRayDirection(glm::normalize(transform * glm::vec3(x, y, z)));
+    TracePhoton(photonMap, photonRay, lightIntensity, path, currentIOR, remainingBounces - 1);
+    path.pop_back();
 }
 
 glm::vec3 PhotonMappingRenderer::ComputeSampleColor(const struct IntersectionState& intersection, const class Ray& fromCameraRay) const

@@ -17,5 +17,13 @@ float PointLight::ComputeLightAttenuation(glm::vec3 origin) const
 
 void PointLight::GenerateRandomPhotonRay(Ray& ray) const
 {
-    // Assignment 8 TODO: Fill in the random point light samples here.
+    float x, y, z;
+    do {
+        x = (double) rand() / RAND_MAX * 2 - 1;
+        y = (double) rand() / RAND_MAX * 2 - 1;
+        z = (double) rand() / RAND_MAX * 2 - 1;
+    } while (x * x + y * y + z * z > 1);
+
+    ray.SetRayPosition(glm::vec3(this->position));
+    ray.SetRayDirection(glm::normalize(glm::vec3(x, y, z)));
 }
