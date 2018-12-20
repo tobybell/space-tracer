@@ -1,14 +1,13 @@
 #include "common/Rendering/Renderer/Backward/BackwardRenderer.h"
 #include "common/Scene/Scene.h"
-#include "common/Sampling/ColorSampler.h"
 #include "common/Scene/Lights/Light.h"
 #include "common/Scene/Geometry/Primitives/Primitive.h"
 #include "common/Scene/Geometry/Mesh/MeshObject.h"
 #include "common/Rendering/Material/Material.h"
 #include "common/Intersection/IntersectionState.h"
 
-BackwardRenderer::BackwardRenderer(std::shared_ptr<Scene> scene, std::shared_ptr<ColorSampler> sampler) :
-    Renderer(scene, sampler)
+BackwardRenderer::BackwardRenderer(std::shared_ptr<Scene> scene) :
+    Renderer(scene)
 {
 }
 

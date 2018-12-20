@@ -1,6 +1,5 @@
 #include "common/Utility/Texture/TextureLoader.h"
 #include "common/Rendering/Textures/Texture2D.h"
-#include "common/Rendering/Textures/CubeMapTexture.h"
 #include "FreeImage.h"
 #include <bitset>
 
@@ -64,22 +63,6 @@ std::shared_ptr<Texture2D> LoadTexture(const std::string& filename)
     int width, height;
     unsigned char* textureRawData = LoadRawData(filename, width, height);
     std::shared_ptr<Texture2D> newTexture = std::make_shared<Texture2D>(textureRawData, width, height);
-    return newTexture;
-}
-
-std::shared_ptr<CubeMapTexture> LoadCubeTexture(const std::string& front, const std::string& left, const std::string& right,
-    const std::string& top, const std::string& bottom, const std::string& back)
-{
-    int width, height;
-    unsigned char* data[6];
-    data[5] = LoadRawData(front, width, height);
-    data[1] = LoadRawData(left, width, height);
-    data[0] = LoadRawData(right, width, height);
-    data[2] = LoadRawData(top, width, height);
-    data[3] = LoadRawData(bottom, width, height);
-    data[4] = LoadRawData(back, width, height);
-
-    std::shared_ptr<CubeMapTexture> newTexture = std::make_shared<CubeMapTexture>(data, width, height);
     return newTexture;
 }
 

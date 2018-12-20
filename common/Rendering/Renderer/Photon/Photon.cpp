@@ -1,1 +1,0 @@
-#include "common/Rendering/Renderer/Photon/Photon.h"
